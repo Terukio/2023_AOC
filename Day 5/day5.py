@@ -36,12 +36,13 @@ def resource_map(resource,resource_map):
             return destination
     return resource
 
-def process_seed(seeds, data):
+def process_seed(min_seed,max_seed, data):
     locations = 10**100
-    for seed in seeds:
+    for seed in range(min_seed,max_seed):
+        processed_seed = seed
         for i in range(7):
-            seed = resource_map(seed, data[i + 1])
-        locations = min(locations,seed)
+            processed_seed = resource_map(processed_seed, data[i + 1])
+        locations = min(locations,processed_seed)
     return locations
 
 def day5(data):
@@ -58,8 +59,7 @@ def day5(data):
     print('Part 1:',locations)
     print('Part 1 Elapsed Time:',round(time.time() - start,4),'seconds.')
 
-    seeds = [[i for i in range(data[0][j],data[0][j] + data[0][j + 1])] for j in range(0,len(data[0]),2)]
-    print(seeds)
+    seed_ranges = [(data[0][j],data[0][j] + data[0][j + 1]) for j in range(0,len(data[0]),2)]
 
     start2 = time.time()
 
@@ -67,7 +67,7 @@ def day5(data):
 
     with Pool() as pool:
         # Map your function and data to the pool
-        results = pool.starmap(process_seed, [(seed, data) for seed in seeds])
+        results = pool.starmap(process_seed, [(start,end, data) for start,end in seed_ranges])
 
         # Process results
         locations = min(locations, *results)
