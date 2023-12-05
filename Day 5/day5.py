@@ -1,4 +1,5 @@
 import time
+from multiprocessing import Pool
 
 testing = False
 
@@ -35,30 +36,45 @@ def resource_map(resource,resource_map):
             return destination
     return resource
 
+def process_seed(seeds, data):
+    locations = 10**100
+    for seed in seeds:
+        for i in range(7):
+            seed = resource_map(seed, data[i + 1])
+        locations = min(locations,seed)
+    return locations
+
 def day5(data):
     start = time.time()
     data = parseData(data)
     locations = 10**1000
     for seed in data[0]:
+        #print(seed,'|', end = ' ')
         for i in range(7):
             seed = resource_map(seed,data[i + 1])
+            #print(seed, end = ' ')
+        #print()
         locations = min(locations,seed)
     print('Part 1:',locations)
     print('Part 1 Elapsed Time:',round(time.time() - start,4),'seconds.')
 
-    seeds = [i for i in range(data[0][0],data[0][0] + data[0][1])] + [i for i in range(data[0][2],data[0][2] + data[0][3])]
-    total_seeds = len(seeds)
+    seeds = [[i for i in range(data[0][j],data[0][j] + data[0][j + 1])] for j in range(0,len(data[0]),2)]
+    print(seeds)
+
     start2 = time.time()
+
     locations = 10**1000
-    for i,seed in enumerate(seeds):
-        if i % 1_000_000 == 1:
-            print('Seed:',i,'Total Seeds:',total_seeds)
-            print(locations)
-        for i in range(7):
-            seed = resource_map(seed,data[i + 1])
-        locations = min(locations,seed)
-        
-    print('Part 2:',locations)
+
+    with Pool() as pool:
+        # Map your function and data to the pool
+        results = pool.starmap(process_seed, [(seed, data) for seed in seeds])
+
+        # Process results
+        locations = min(locations, *results)
+
+    print('Part 2:', locations)
     print('Part 2 elapsed time:',round(time.time() - start2,4),'seconds.')
     print('Total elapsed time:',round(time.time() - start,4),'seconds.')
-day5(data)
+
+if __name__ == "__main__":
+    day5(data)
