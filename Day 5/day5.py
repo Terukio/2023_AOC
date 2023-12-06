@@ -66,10 +66,8 @@ def day5(data):
     locations = 10**1000
 
     with Pool() as pool:
-        # Map your function and data to the pool
-        results = pool.starmap(process_seed, [(start,end, data) for start,end in seed_ranges])
 
-        # Process results
+        results = pool.starmap(process_seed, [(start,end, data) for start,end in seed_ranges])
         locations = min(locations, *results)
 
     print('Part 2:', locations)
